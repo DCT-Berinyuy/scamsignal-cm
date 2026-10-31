@@ -23,3 +23,4 @@ models/
 .vscode/
 .zed/
 .DS_Store
+.vercel
