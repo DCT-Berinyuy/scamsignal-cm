@@ -4,7 +4,7 @@ An open-source scam signal for Mobile Money users in Cameroon
 
 Hacktoberfest Hack Day Yaoundé 2026 · Theme: AI Belongs to Everyone · Oct 31, 2026
 Author: Mr. DCT (Verla Berinyuy Ndey), with the Hack Day team
-Status: v3.1 (3-member PR workflow), replaces v2. Scope freezes at Checkpoint 2 (§14).
+Status: v3.2 (model moved to the Gemini API, see §0), replaces v3.1. Scope freezes at Checkpoint 2 (§14).
 Repo: scamsignal-cm · License: Apache-2.0
 
 Team rule: If it is not in §6 "Must have", it waits. New ideas go into the "Later" list in the README, not into the code.
@@ -12,6 +12,40 @@ Team rule: If it is not in §6 "Must have", it waits. New ideas go into the "Lat
 
 
 0. What changed (read this first)
+
+v3.1 → v3.2 (decided by Mr. DCT at T+0; overrides the sections listed)
+
+Reason: venue Wi-Fi measured at 30–200 KB/s (local model + CPU torch ≈ 1.3 GB, 1.5 h+), and the demo laptop has ~1 GB free RAM. A local model would not fit the time or the §4 latency target.
+
+Area
+v3.1
+v3.2
+Model (§8.4, §9)
+Qwen2.5-0.5B-Instruct, local, pinned revision
+Gemma 4 (gemma-4-26b-a4b-it) hosted on the Gemini API, called over REST with httpx. Weights are Apache-2.0; hosted use is under the Gemini API terms. A hosted model cannot be pinned: eval results state the model id and the date.
+Label vote (§8.4)
+First-token probabilities
+Prompt asks for exactly one word; the reply is accepted only if it is exactly suspicious / unclear / safe, otherwise treated as model unavailable. Same timeout (8 s) and rules-only fallback.
+Privacy (§11)
+No third-party APIs, the model runs locally
+The message is sent to Google's Gemini API to get the vote and the "why". Before sending, phone numbers and digit runs of 6+ are replaced with [NUMBER]. The page shows a notice that text is sent to Google. Free-tier terms: Google may use inputs to improve its products and human reviewers may read them. Demo uses synthetic messages only. Still nothing stored or logged by us.
+API key
+—
+GEMINI_API_KEY from the environment (.env is gitignored, .env.example committed). Never logged, sent as a header, not in the URL. No key → rules-only, model_used: false.
+Dependencies (§8.5)
+torch (CPU) + transformers
+None for the model; httpx only. The CPU-torch note in §8.5 no longer applies.
+Hosting (§8.6)
+Needs RAM for the model
+Rules + API fit small free tiers (e.g. Render). Needs internet; rules-only fallback still works offline.
+Gemma (§9)
+Rejected: non-OSI terms
+Gemma 4 is Apache-2.0 (Gemma 3 and earlier are not). The local Gemma 4 E2B (10.3 GB) is still too large for today.
+Later
+—
+Local model (Qwen2.5-0.5B or similar) for fully on-device privacy, behind the same app/model.py interface.
+
+Unchanged: §7.2 decision table and all invariants. The model can only raise a clean message to unclear, never lower a rule label, never produce suspicious alone.
 
 v2 → v3
 
