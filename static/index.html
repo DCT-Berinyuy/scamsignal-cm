@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ScamSignal CM</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <h1 id="app-title">ScamSignal CM</h1>
+      <p id="app-tagline" class="app-tagline">Check suspicious Mobile Money messages in Cameroon</p>
+      
+      <nav aria-label="Language selection" class="lang-nav">
+        <div role="group" aria-label="Language" class="toggle-group" id="lang-group">
+          <button type="button" class="btn-toggle active" data-lang="en" aria-pressed="true">English</button>
+          <button type="button" class="btn-toggle" data-lang="fr" aria-pressed="false">Français</button>
+          <button type="button" class="btn-toggle" data-lang="pcm" aria-pressed="false">Pidgin</button>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="card section-examples" aria-labelledby="examples-title">
+        <h2 id="examples-title" class="section-title">Try an example:</h2>
+        <div class="example-buttons" id="example-buttons">
+          <button type="button" class="btn-example" data-example="en-scam" id="ex-en-scam">EN scam</button>
+          <button type="button" class="btn-example" data-example="fr-scam" id="ex-fr-scam">FR scam</button>
+          <button type="button" class="btn-example" data-example="pcm-scam" id="ex-pcm-scam">Pidgin scam</button>
+          <button type="button" class="btn-example" data-example="real-msg" id="ex-real-msg">Real message</button>
+          <button type="button" class="btn-example" data-example="tricky-scam" id="ex-tricky-scam">Tricky scam</button>
+        </div>
+      </section>
+
+      <section class="card form-section" aria-label="Check message form">
+        <div class="warning-banner" id="privacy-warning" role="note">
+          <span class="warning-icon" aria-hidden="true">&#9888;</span>
+          <span id="privacy-warning-text">Do not paste PINs, OTP codes or personal details.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="message-input" id="message-label" class="form-label">Paste SMS or WhatsApp message:</label>
+          <textarea id="message-input" class="message-input" maxlength="1000" rows="5" placeholder="Paste suspicious message here..." aria-describedby="char-count"></textarea>
+          <div class="char-count-wrapper">
+            <span id="char-count" class="char-count" aria-live="polite">0 / 1000</span>
+          </div>
+        </div>
+
+        <fieldset class="form-group sender-fieldset">
+          <legend id="sender-legend" class="form-label">Who sent it?</legend>
+          <div role="group" aria-labelledby="sender-legend" class="toggle-group sender-group" id="sender-group">
+            <button type="button" class="btn-toggle" data-sender="named" aria-pressed="false" id="sender-named">Named sender (e.g. MobileMoney, OrangeMoney)</button>
+            <button type="button" class="btn-toggle" data-sender="number" aria-pressed="false" id="sender-number">Phone number</button>
+            <button type="button" class="btn-toggle active" data-sender="unknown" aria-pressed="true" id="sender-unknown">Don't know</button>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" id="check-btn" class="btn-primary" disabled>Check message</button>
+        </div>
+
+        <div id="error-box" class="error-box hidden" role="alert"></div>
+      </section>
+
+      <section id="result-card" class="result-card hidden" aria-live="polite">
+        <div id="result-badge" class="result-badge">
+          <span id="result-icon" class="result-icon" aria-hidden="true"></span>
+          <span id="result-label" class="result-label"></span>
+        </div>
+
+        <div class="result-section">
+          <h3 id="reasons-heading" class="result-subheading">Why we think so</h3>
+          <ul id="reasons-list" class="reasons-list"></ul>
+          <p id="why-text" class="why-text"></p>
+        </div>
+
+        <div class="result-section">
+          <h3 id="advice-heading" class="result-subheading">Safe next step</h3>
+          <p id="advice-text" class="advice-text"></p>
+        </div>
+
+        <div class="result-notes">
+          <div class="note reminder-note">
+            <span class="note-icon" aria-hidden="true">&#9432;</span>
+            <span id="reminder-text">Verify in the official app. Never share your PIN or OTP.</span>
+          </div>
+          <div class="note confidence-note">
+            <span id="confidence-text">This is a warning signal, not proof. Check in the official app.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card about-section" aria-labelledby="about-heading">
+        <h2 id="about-heading" class="section-title">About &amp; Limitations</h2>
+        <ul class="about-list">
+          <li id="about-p1">It's a warning signal, not proof. It never blocks anything and never contacts anyone.</li>
+          <li id="about-p2">We don't store or log messages.</li>
+          <li id="about-p3">The message is sent to Google's Gemini API to get the AI explanation. Phone numbers and long digit runs are replaced with [NUMBER] first. Google may use free-tier inputs to improve its products.</li>
+          <li id="about-p4">Pidgin support is experimental.</li>
+          <li id="about-p5">Open source (<a href="https://github.com/DCT-Berinyuy/scamsignal-cm" target="_blank" rel="noopener noreferrer">Apache-2.0</a>).</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p id="footer-text">Built for Mobile Money safety in Cameroon.</p>
+    </footer>
+  </div>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
