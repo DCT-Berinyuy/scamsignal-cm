@@ -34,7 +34,15 @@ export GEMINI_API_KEY=...   # get one at https://aistudio.google.com/apikey; wit
 
 ## Run
 
-_TBD_
+```bash
+.venv/bin/uvicorn app.main:app --port 8000
+curl -s localhost:8000/check -H 'Content-Type: application/json' \
+  -d '{"text": "You won! Send your PIN to 6XX XXX XXX", "lang": "en", "sender_type": "number"}'
+```
+
+API (PRD §8.2): `POST /check` with `text` (1–1000 chars), `lang` (`en`|`fr`|`pcm`), `sender_type`
+(`named`|`number`|`unknown`); `GET /health`. Invalid input returns `422 {"error": "invalid input"}`
+and the submitted text is never echoed back.
 
 ## Test
 
@@ -94,6 +102,7 @@ Ideas raised during the build that are out of today's scope (PRD §6). Not built
 Format: `- idea (author)`.
 
 - Local model (Qwen2.5-0.5B-Instruct or similar) behind the same `app/model.py` interface, so no message leaves the device (Mr. DCT)
+- Rate limiting on `POST /check` before any public deployment, so the Gemini API quota can't be drained (build agent)
 
 ## License
 
