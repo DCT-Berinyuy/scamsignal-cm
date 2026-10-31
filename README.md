@@ -101,6 +101,8 @@ assistant wrote the rules, so the numbers would be circular. No accuracy numbers
 
 ## Contributing
 
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** for contributors, setup, the rules that protect users, and the PR workflow.
+
 Add rules for your language without touching Python: edit [`rules/rules.json`](rules/rules.json).
 
 - `mask`: warning phrases real operators use ("never share", "ne communiquez jamais"). They are blanked out
