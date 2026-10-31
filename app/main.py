@@ -9,11 +9,12 @@ from typing import AsyncIterator, Literal
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.advice import AdviceBook, default_advice
 from app.combine import Label, ModelVote, combine
-from app.config import APP_NAME, LANGS, MAX_TEXT_LEN, SENDER_TYPES
+from app.config import APP_NAME, LANGS, MAX_TEXT_LEN, SENDER_TYPES, STATIC_DIR
 from app.rules import RuleSet, default_rules
 
 logger = logging.getLogger("scamsignal")
@@ -119,3 +120,7 @@ def health(request: Request) -> dict:
 @app.post("/check", response_model=CheckResponse)
 def check(req: CheckRequest, request: Request) -> CheckResponse:
     return analyze(req, request.app.state.rules, request.app.state.advice)
+
+
+# Last, so API routes win. Serves static/index.html at "/" (PRD §8.1: one deploy, no CORS).
+app.mount("/", StaticFiles(directory=STATIC_DIR, html=True, check_dir=False), name="static")

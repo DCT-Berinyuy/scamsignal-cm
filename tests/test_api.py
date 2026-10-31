@@ -100,6 +100,19 @@ def test_docs_are_disabled(client) -> None:
     assert client.get("/openapi.json").status_code == 404
 
 
+def test_static_mount_serves_page_without_shadowing_api(client, tmp_path, monkeypatch) -> None:
+    from starlette.staticfiles import StaticFiles
+
+    from app.main import app
+
+    (tmp_path / "index.html").write_text("<title>page</title>")
+    mount = next(r for r in app.routes if getattr(r, "name", "") == "static")
+    monkeypatch.setattr(mount, "app", StaticFiles(directory=tmp_path, html=True))
+    assert "<title>page</title>" in client.get("/").text
+    assert client.get("/health").json()["status"] == "ok"
+    assert client.post("/check", json={"text": "hi", "lang": "en", "sender_type": "named"}).status_code == 200
+
+
 # --- Advice file -----------------------------------------------------------------------------
 
 
