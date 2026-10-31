@@ -71,7 +71,16 @@ _TBD_
 
 ## Contributing
 
-_TBD_: how to add rule patterns and warning (mask) phrases in `rules/rules.json` without touching Python.
+Add rules for your language without touching Python: edit [`rules/rules.json`](rules/rules.json).
+
+- `mask`: warning phrases real operators use ("never share", "ne communiquez jamais"). They are blanked out
+  before rules run, so "never share your PIN" is not a hit, but "send your PIN" in the same message still is.
+- `rules`: each has an `id`, a `severity` (`hard`: one hit means *suspicious*; `soft`: two different soft hits
+  mean *suspicious*, one means *unclear*), regex `patterns`, and a `reason` in `en`, `fr` and `pcm`.
+- Text is lowercased and accents are stripped before matching, so write patterns in lowercase; accents are optional.
+- Rules run on every message whatever language is selected; the language only picks the reason text.
+- A malformed rules file fails at startup with a clear error. Run `.venv/bin/pytest -q` after any change.
+- Tune only on `eval/devset.jsonl`, never on the test set.
 
 ## AI-tool disclosure
 

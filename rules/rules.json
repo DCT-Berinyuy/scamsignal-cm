@@ -1,0 +1,159 @@
+{
+  "_comment": [
+    "Text is lowercased and accents are stripped before matching; mask phrases and patterns get the same treatment, so accents are optional.",
+    "Mask phrases (operator warnings like 'never share') are blanked out before rules run, per phrase, not per message (PRD 7.1).",
+    "Rules run on every message regardless of the selected language; 'lang' lists the languages a rule's patterns cover. The selected language only picks the reason text.",
+    "Optional 'sender_types' limits a rule to those sender types. Optional 'allow' lists official domains a link may point to (empty until verified, PRD 16).",
+    "Pidgin (pcm) phrases and reasons need review by a native speaker (PRD 16)."
+  ],
+  "mask": [
+    "never share", "do not share", "don't share", "dont share",
+    "never give", "do not give", "don't give", "dont give",
+    "never send", "do not send", "don't send", "dont send",
+    "never enter", "do not enter", "don't enter",
+    "ne communiquez jamais", "ne partagez jamais", "ne donnez jamais", "n'envoyez jamais", "ne transmettez jamais",
+    "ne communiquez pas", "ne partagez pas", "ne donnez pas", "n'envoyez pas", "ne transmettez pas",
+    "no give anybody", "no share", "neva give", "no give", "neva share", "no send"
+  ],
+  "no_hits_reason": {
+    "en": "No known warning patterns matched.",
+    "fr": "Aucun signal d'alerte connu n'a été trouvé.",
+    "pcm": "We no see any warning sign wey we sabi."
+  },
+  "rules": [
+    {
+      "id": "pin_request",
+      "severity": "hard",
+      "lang": ["en", "fr", "pcm"],
+      "patterns": [
+        "\\b(send|enter|confirm|give|share|type|dial|put)\\b.{0,30}\\b(pin|otp|secret code|password)\\b",
+        "\\b(envoyez|entrez|confirmez|donnez|communiquez|tapez|saisissez)\\b.{0,30}\\b(code secret|code pin|pin|otp|mot de passe)\\b"
+      ],
+      "reason": {
+        "en": "asks you to give your PIN or secret code",
+        "fr": "vous demande de donner votre code PIN ou code secret",
+        "pcm": "e di ask you make you give your PIN or secret code"
+      }
+    },
+    {
+      "id": "wrong_transfer_refund",
+      "severity": "hard",
+      "lang": ["en", "fr", "pcm"],
+      "patterns": [
+        "(?s)^(?=.*\\b(by mistake|mistakenly|in error|wrongly|wrong (number|transfer|transaction|account|person)|erroneous(ly)?|for mistake|na mistake)\\b)(?=.*(\\b(send|return|refund|resend|transfer|pay)\\b.{0,40}\\bback\\b|\\b(return|refund)\\b.{0,20}\\b(the money|money|moni|amount|funds)\\b))",
+        "(?s)^(?=.*\\b(par erreur|par megarde|erreur de transfert|erreur de transaction|mauvais numero)\\b)(?=.*\\b(renvoy\\w*|retourn\\w*|rembours\\w*|restitu\\w*|reverse[rz])\\b)"
+      ],
+      "reason": {
+        "en": "asks you to send back money sent \"by mistake\"",
+        "fr": "vous demande de renvoyer de l'argent envoyé « par erreur »",
+        "pcm": "e di ask you make you send back money wey dem send \"by mistake\""
+      }
+    },
+    {
+      "id": "operator_from_number",
+      "severity": "hard",
+      "lang": ["en", "fr", "pcm"],
+      "sender_types": ["number"],
+      "patterns": [
+        "\\b(mtn|orange|momo|mobile money|orange money|nexttel|camtel)\\b.{0,25}\\b(cameroon|cameroun|team|equipe|service|services|support|customer care|service client|agent|security|securite|department|departement)\\b",
+        "\\b(this is|ici|na)\\s+(mtn|orange|momo|mobile money|orange money|nexttel|camtel)\\b",
+        "^\\W*(mtn|orange|momo|mobile money|orange money|nexttel|camtel)\\b",
+        "\\b(dear|cher|chere)\\s+(valued customer|customer|client|cliente|subscriber|abonne|abonnee|user|utilisateur)\\b"
+      ],
+      "reason": {
+        "en": "claims to be MTN, Orange or an operator but comes from a phone number",
+        "fr": "prétend venir de MTN, Orange ou d'un opérateur mais vient d'un numéro de téléphone",
+        "pcm": "e say na MTN, Orange or operator but na phone number send am"
+      }
+    },
+    {
+      "id": "urgency_threat",
+      "severity": "soft",
+      "lang": ["en", "fr", "pcm"],
+      "patterns": [
+        "\\b(urgent|urgently|immediately|right now|act now|asap|within \\d+\\s*(minutes?|mins?|hours?|hrs?)|today only|last chance|final (notice|warning)|(expires?|expiring) (today|soon|in \\d+)|suspended|blocked|deactivated|will be (blocked|suspended|closed|deleted|deactivated|lost))\\b",
+        "\\b(urgent|urgence|immediatement|tout de suite|sans delai|dans les \\d+\\s*(minutes?|heures?|h)|derniere chance|dernier (delai|avertissement)|suspendue?|bloquee?|desactivee?|sera (bloque|suspendu|ferme|desactive|supprime)e?)\\b",
+        "\\b(quick quick|sharp sharp|now now|go block|go close|go lock|dem go (block|close|lock|cut))\\b"
+      ],
+      "reason": {
+        "en": "creates urgency or makes threats",
+        "fr": "crée de l'urgence ou fait des menaces",
+        "pcm": "e di rush you or threaten you"
+      }
+    },
+    {
+      "id": "reward_bait",
+      "severity": "soft",
+      "lang": ["en", "fr", "pcm"],
+      "patterns": [
+        "\\b(won|winner|prize|reward|gift|lottery|jackpot|congratulations|congrats|lucky (winner|number|draw)|free (money|airtime|data|credit))\\b",
+        "\\b(gagne|gagnant|gagnante|felicitations|gros lot|recompense|cadeau|loterie|tirage au sort)\\b",
+        "\\b(you don win|una don win|don win)\\b"
+      ],
+      "reason": {
+        "en": "promises a prize, reward or gift",
+        "fr": "promet un prix, une récompense ou un cadeau",
+        "pcm": "e di promise you prize, reward or gift"
+      }
+    },
+    {
+      "id": "link",
+      "severity": "soft",
+      "lang": ["en", "fr", "pcm"],
+      "allow": [],
+      "patterns": [
+        "https?://\\S+",
+        "\\bwww\\.\\S+",
+        "\\b[a-z0-9-]+(\\.[a-z0-9-]+)*\\.(com|net|org|cm|ly|me|xyz|info|top|io|co|link|site|online|click|biz|app|gl|to|cc)\\b(/\\S*)?"
+      ],
+      "reason": {
+        "en": "contains a link",
+        "fr": "contient un lien",
+        "pcm": "e get link inside"
+      }
+    },
+    {
+      "id": "agent_impersonation",
+      "severity": "soft",
+      "lang": ["en", "fr", "pcm"],
+      "patterns": [
+        "\\b(agent|customer care|customer service|support team|help ?desk|security team|account officer)\\b",
+        "\\b(service client|conseiller|conseillere|technicien|service technique)\\b"
+      ],
+      "reason": {
+        "en": "claims to be an agent or customer support",
+        "fr": "prétend être un agent ou le service client",
+        "pcm": "e say na agent or customer care"
+      }
+    },
+    {
+      "id": "call_request",
+      "severity": "soft",
+      "lang": ["en", "fr", "pcm"],
+      "patterns": [
+        "\\b(call|dial|ring|contact|text|whatsapp|flash|appelez|appeler|appelle|contactez|contacter|composez|joignez|ecrivez)\\b.{0,40}((\\+?237[\\s.-]?)?\\b6[0-9x]{2}[\\s.-]?[0-9x]{3}[\\s.-]?[0-9x]{3}\\b|\\b\\d{8,}\\b|\\b(this|that|the|dis) number\\b|\\b(ce|le) numero\\b)"
+      ],
+      "reason": {
+        "en": "asks you to call or dial a number",
+        "fr": "vous demande d'appeler ou de composer un numéro",
+        "pcm": "e di ask you make you call or dial number"
+      }
+    },
+    {
+      "id": "money_request",
+      "severity": "soft",
+      "lang": ["en", "fr", "pcm"],
+      "patterns": [
+        "\\b(send|transfer|pay|deposit|load)\\b(?!\\s+(of|successful|completed|failed)\\b).{0,30}(\\d[\\d\\s.,]*\\s*(fcfa|frs|francs?|xaf|cfa)\\b|\\b(money|moni|doh|fees?|amount|charges?)\\b)",
+        "\\b(registration|processing|activation|transfer|delivery|withdrawal|clearance) (fees?|charges?)\\b",
+        "\\b(envoyez|transferez|payez|versez|deposez|(veuillez|merci de) (envoyer|payer|verser|transferer|deposer))\\b.{0,30}(\\d[\\d\\s.,]*\\s*(fcfa|frs|francs?|xaf|cfa)\\b|\\b(argent|frais|montant|somme)\\b)",
+        "\\bfrais (de|d')\\s*(dossier|traitement|activation|retrait|livraison|inscription|deblocage)\\b"
+      ],
+      "reason": {
+        "en": "asks you to send money or pay a fee",
+        "fr": "vous demande d'envoyer de l'argent ou de payer des frais",
+        "pcm": "e di ask you make you send money or pay fee"
+      }
+    }
+  ]
+}
