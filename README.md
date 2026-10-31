@@ -56,7 +56,18 @@ and the submitted text is never echoed back.
 
 ## Evaluation
 
-_TBD_: `python eval/eval.py` reproduces every number in this section (Tables A and B, PRD §10).
+```bash
+set -a; source .env; set +a
+.venv/bin/python eval/eval.py               # rules-only and rules+model, writes eval/results.md
+.venv/bin/python eval/eval.py --rules-only  # without the API
+```
+
+The test set (`eval/testset/{en,fr,pcm}.jsonl`) is written by humans only and committed before any rule
+tuning; nobody tunes rules or prompts on it. The script prints Table A (label quality), Table B (what the
+model adds, and its cost), confusion matrices per language and the misclassified ids, with the sample size
+next to every number. The hosted model can't be pinned, so the report states the model id and run date.
+
+_TBD: numbers from `eval/results.md` once the test set is merged._
 
 ## Limitations
 
