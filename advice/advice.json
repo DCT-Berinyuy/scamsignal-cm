@@ -1,0 +1,73 @@
+{
+  "_status": "DRAFT placeholder text written by the build agent. Must be reviewed and rewritten by humans before the demo: B for en + fr, C for pcm (PRD 14.1). No phone numbers or USSD codes until verified (PRD 16).",
+  "_comment": "advice: one entry per rule id, plus 'no_hits' and 'default'. The highest-severity rule hit picks the entry. If 'pcm' is missing, English is used (PRD 6 cut order). why_template is used when there is no model explanation.",
+  "why_template": {
+    "hits": {
+      "en": "Warning signs found: {reasons}.",
+      "fr": "Signaux d'alerte trouvés : {reasons}.",
+      "pcm": "Warning sign wey we see: {reasons}."
+    },
+    "no_hits": {
+      "en": "We found no known warning patterns, but that is not proof. Check in the official app before you act.",
+      "fr": "Nous n'avons trouvé aucun signal d'alerte connu, mais ce n'est pas une preuve. Vérifiez dans l'application officielle avant d'agir.",
+      "pcm": "We no see any warning sign wey we sabi, but e no be proof. Check for the official app before you do anything."
+    }
+  },
+  "advice": {
+    "pin_request": {
+      "en": "Do not send your PIN or any code. No real operator or agent will ever ask for it. Check your account only in the official app.",
+      "fr": "N'envoyez ni votre code PIN ni aucun code. Aucun vrai opérateur ou agent ne vous le demandera. Vérifiez votre compte uniquement dans l'application officielle.",
+      "pcm": "No send your PIN or any code. Real operator or agent no go ever ask you for am. Check your account only for the official app."
+    },
+    "wrong_transfer_refund": {
+      "en": "Do not send any money back. Check your real balance in the official app. If money truly arrived by mistake, the operator handles it; contact them through the official app.",
+      "fr": "Ne renvoyez pas d'argent. Vérifiez votre vrai solde dans l'application officielle. Si de l'argent est vraiment arrivé par erreur, c'est l'opérateur qui s'en occupe ; contactez-le via l'application officielle.",
+      "pcm": "No send any money back. Check your real balance for the official app. If money really enter by mistake, na operator go handle am; contact dem for the official app."
+    },
+    "operator_from_number": {
+      "en": "Real operator messages come from the official sender name, not from a phone number. Do not reply or call back. Check in the official app.",
+      "fr": "Les vrais messages de l'opérateur viennent du nom d'expéditeur officiel, pas d'un numéro de téléphone. Ne répondez pas et ne rappelez pas. Vérifiez dans l'application officielle.",
+      "pcm": "Real operator message di come from the official sender name, no be phone number. No reply and no call back. Check for the official app."
+    },
+    "urgency_threat": {
+      "en": "Take your time. Pressure and threats are a common scam trick. Check your account status in the official app.",
+      "fr": "Prenez votre temps. La pression et les menaces sont une technique d'arnaque courante. Vérifiez l'état de votre compte dans l'application officielle.",
+      "pcm": "Take your time. To rush you and threaten you na common scam trick. Check your account for the official app."
+    },
+    "reward_bait": {
+      "en": "Be careful with prizes you did not enter for. Never pay or share a code to receive a prize. Check promotions in the official app.",
+      "fr": "Méfiez-vous des gains auxquels vous n'avez pas participé. Ne payez jamais et ne donnez jamais de code pour recevoir un prix. Vérifiez les promotions dans l'application officielle.",
+      "pcm": "Take care with prize wey you no enter for. No ever pay or give code to collect prize. Check promotion for the official app."
+    },
+    "link": {
+      "en": "Do not open the link. Use only the official app.",
+      "fr": "N'ouvrez pas le lien. Utilisez uniquement l'application officielle.",
+      "pcm": "No open the link. Use only the official app."
+    },
+    "agent_impersonation": {
+      "en": "Anyone can say they are an agent or customer care. Contact support only through the official app.",
+      "fr": "N'importe qui peut se dire agent ou service client. Contactez le service client uniquement via l'application officielle.",
+      "pcm": "Anybody fit say e be agent or customer care. Contact support only for the official app."
+    },
+    "call_request": {
+      "en": "Do not call or dial the number in the message. Use only contacts shown in the official app.",
+      "fr": "N'appelez pas et ne composez pas le numéro du message. Utilisez uniquement les contacts affichés dans l'application officielle.",
+      "pcm": "No call or dial the number wey dey the message. Use only contact wey dey the official app."
+    },
+    "money_request": {
+      "en": "Do not send money or pay a fee because a message asks you to. Check in the official app first.",
+      "fr": "N'envoyez pas d'argent et ne payez pas de frais parce qu'un message vous le demande. Vérifiez d'abord dans l'application officielle.",
+      "pcm": "No send money or pay fee because message tell you. Check for the official app first."
+    },
+    "no_hits": {
+      "en": "If the message asks for money, a PIN or a code, check in the official app before you act.",
+      "fr": "Si le message demande de l'argent, un code PIN ou un code, vérifiez dans l'application officielle avant d'agir.",
+      "pcm": "If the message ask for money, PIN or code, check for the official app before you do anything."
+    },
+    "default": {
+      "en": "Do not act on this message yet. Check in the official app.",
+      "fr": "N'agissez pas encore sur ce message. Vérifiez dans l'application officielle.",
+      "pcm": "No do anything about this message yet. Check for the official app."
+    }
+  }
+}
