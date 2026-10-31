@@ -1,0 +1,8 @@
+# Top-level dependencies. The pinned, hashed lock is requirements.lock (pip-compile).
+# No torch/transformers: the model runs on the Gemini API (PRD v3.2 §0); httpx is the API client.
+fastapi
+uvicorn
+httpx
+
+# tests
+pytest
