@@ -22,7 +22,7 @@ MODEL_LICENSE = "Apache-2.0 (Gemma 4 weights); hosted use is under the Gemini AP
 GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 GEMINI_API_KEY_ENV = "GEMINI_API_KEY"
 MODEL_TIMEOUT_S = 8.0
-WHY_MAX_OUTPUT_TOKENS = 100
+MODEL_MAX_OUTPUT_TOKENS = 150  # label line + a ≤2-sentence why
 
 
 def gemini_api_key() -> str | None:
