@@ -8,7 +8,7 @@ It never blocks anything, never stores messages, and never says a message is saf
 
 Built at Hacktoberfest Hack Day Yaoundé 2026 (theme: *AI Belongs to Everyone*). Full spec: [docs/PRD.md](docs/PRD.md).
 
-> Status: work in progress. Sections marked _TBD_ are filled in as the build progresses.
+> Status: Hack Day build (Oct 31, 2026). Demo script: [docs/DEMO.md](docs/DEMO.md).
 
 ## How it works
 
@@ -67,14 +67,21 @@ tuning; nobody tunes rules or prompts on it. The script prints Table A (label qu
 model adds, and its cost), confusion matrices per language and the misclassified ids, with the sample size
 next to every number. The hosted model can't be pinned, so the report states the model id and run date.
 
-_TBD: numbers from `eval/results.md` once the test set is merged._
+**Results: pending.** There is no human-written test set yet. We chose not to let an AI write it: the same AI
+assistant wrote the rules, so the numbers would be circular. No accuracy numbers are claimed until humans add
+`eval/testset/{en,fr,pcm}.jsonl`.
 
 ## Limitations
 
-_TBD_
-
 - A warning signal, not proof. Always check in the official operator app.
-- Pidgin support is experimental; its accuracy is reported separately.
+- No measured accuracy yet (see Evaluation).
+- **Known failure:** a real operator withdrawal approval ("…dial \*126# and enter your PIN") is flagged
+  *suspicious*. The PIN rule can't tell "type your PIN into the official menu" from "send your PIN to someone".
+- Pidgin support is experimental: Pidgin phrases, reasons and advice have not been reviewed by a native speaker.
+- Advice texts are drafts and have not yet been reviewed by a human (see AI-tool disclosure).
+- The AI part needs internet and the Gemini API; the hosted model can change without notice. Without it, the app
+  answers from the rules alone.
+- No rate limiting yet on `POST /check`.
 
 ## Privacy
 
@@ -107,9 +114,10 @@ Add rules for your language without touching Python: edit [`rules/rules.json`](r
 
 ## AI-tool disclosure
 
-AI coding assistants were used to build this project (GitHub Copilot). All rules, advice templates and
-evaluation results are reviewed by the human team. The evaluation test set is written by humans only;
-no AI tool wrote, read or tuned on it.
+AI coding assistants were used to build this project (GitHub Copilot): code, tests, rules, the draft advice
+texts, the Pidgin text and docs/DEMO.md were AI-assisted, then reviewed by the team lead. The advice and Pidgin
+texts still need a full human review. The evaluation test set must be written by humans only; no AI tool wrote,
+read or tuned on it.
 
 ## Later
 
