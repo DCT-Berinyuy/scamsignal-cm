@@ -1,0 +1,10 @@
+# Never upload secrets or local environments
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+.pytest_cache/
+tests/
+eval/
+docs/
