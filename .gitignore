@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+
+# Local env / secrets (never commit)
+.env
+.env.*
+
+# Model weights / caches (downloaded at runtime, not committed)
+models/
+.cache/
+
+# Editors / OS
+.idea/
+.vscode/
+.zed/
+.DS_Store
