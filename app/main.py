@@ -6,6 +6,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import AsyncIterator, Literal
 
+import httpx
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -13,8 +14,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.advice import AdviceBook, default_advice
-from app.combine import Label, ModelVote, combine
-from app.config import APP_NAME, LANGS, MAX_TEXT_LEN, SENDER_TYPES, STATIC_DIR
+from app.combine import Label, combine
+from app.config import APP_NAME, LANGS, MAX_TEXT_LEN, SENDER_TYPES, STATIC_DIR, gemini_api_key
+from app.filter import clean_why
+from app.model import Assessor, GemmaClient
 from app.rules import RuleSet, default_rules
 
 logger = logging.getLogger("scamsignal")
@@ -67,18 +70,24 @@ class CheckResponse(BaseModel):
     lang: str
 
 
-def analyze(req: CheckRequest, rules: RuleSet, advice: AdviceBook) -> CheckResponse:
-    """text → rules → (model, step 5) → combine. Pure function, reused by eval/eval.py."""
+async def analyze(
+    req: CheckRequest, rules: RuleSet, advice: AdviceBook, model: Assessor | None = None
+) -> CheckResponse:
+    """text → rules → model → filter → combine (PRD §8.1). Reused by eval/eval.py; model=None is rules-only."""
     hits = rules.check(req.text, req.sender_type)
-    vote: ModelVote | None = None
+    result = None
+    if model is not None:
+        rule_reasons = rules.reasons(hits, "en") if hits else []
+        result = await model.assess(req.text, req.lang, req.sender_type, rule_reasons)
     reasons = rules.reasons(hits, req.lang)
+    model_why = clean_why(result.why, rules) if result else None
     return CheckResponse(
-        label=combine(hits, vote),
+        label=combine(hits, result.vote if result else None),
         reasons=reasons,
         rule_hits=[RuleHitOut(id=h.id, severity=h.severity.value) for h in hits],
-        why=advice.why_template(reasons, bool(hits), req.lang),
+        why=model_why or advice.why_template(reasons, bool(hits), req.lang),
         advice=advice.advice(hits, req.lang),
-        model_used=False,
+        model_used=result is not None,
         lang=req.lang,
     )
 
@@ -88,8 +97,17 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Fail fast at startup if rules.json or advice.json is malformed.
     app.state.rules = default_rules()
     app.state.advice = default_advice()
-    app.state.model_loaded = False
-    yield
+    api_key = gemini_api_key()
+    http = httpx.AsyncClient() if api_key else None
+    app.state.model = GemmaClient(api_key, http) if api_key and http else None
+    if app.state.model is not None:
+        await app.state.model.warm_up()
+    logger.info("model %s", "enabled" if app.state.model else "disabled (no API key): rules-only")
+    try:
+        yield
+    finally:
+        if http is not None:
+            await http.aclose()
 
 
 app = FastAPI(title=APP_NAME, lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
@@ -114,12 +132,15 @@ async def _contain_errors(request: Request, call_next):
 
 @app.get("/health")
 def health(request: Request) -> dict:
-    return {"status": "ok", "model_loaded": request.app.state.model_loaded, "app_name": APP_NAME}
+    model = request.app.state.model
+    loaded = bool(model is not None and getattr(model, "healthy", True))
+    return {"status": "ok", "model_loaded": loaded, "app_name": APP_NAME}
 
 
 @app.post("/check", response_model=CheckResponse)
-def check(req: CheckRequest, request: Request) -> CheckResponse:
-    return analyze(req, request.app.state.rules, request.app.state.advice)
+async def check(req: CheckRequest, request: Request) -> CheckResponse:
+    state = request.app.state
+    return await analyze(req, state.rules, state.advice, state.model)
 
 
 # Last, so API routes win. Serves static/index.html at "/" (PRD §8.1: one deploy, no CORS).

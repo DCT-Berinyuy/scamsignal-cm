@@ -35,10 +35,14 @@ export GEMINI_API_KEY=...   # get one at https://aistudio.google.com/apikey; wit
 ## Run
 
 ```bash
-.venv/bin/uvicorn app.main:app --port 8000
+set -a; source .env; set +a      # loads GEMINI_API_KEY; skip this to run rules-only
+.venv/bin/uvicorn app.main:app --port 8000   # page + API on http://localhost:8000
 curl -s localhost:8000/check -H 'Content-Type: application/json' \
   -d '{"text": "You won! Send your PIN to 6XX XXX XXX", "lang": "en", "sender_type": "number"}'
 ```
+
+With a key, `GET /health` shows `"model_loaded": true` and responses have `"model_used": true`.
+If the API fails, is slow (> 8 s) or no key is set, the app answers from the rules alone (`"model_used": false`).
 
 API (PRD §8.2): `POST /check` with `text` (1–1000 chars), `lang` (`en`|`fr`|`pcm`), `sender_type`
 (`named`|`number`|`unknown`); `GET /health`. Invalid input returns `422 {"error": "invalid input"}`

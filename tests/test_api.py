@@ -164,3 +164,81 @@ def test_pidgin_advice_falls_back_to_english() -> None:
 def test_invalid_advice_fails_fast(data) -> None:
     with pytest.raises(AdviceConfigError):
         parse_advice(data)
+
+
+# --- With a model (fake, no network) ---------------------------------------------------------
+
+from app.combine import ModelVote  # noqa: E402
+from app.model import ModelResult  # noqa: E402
+
+PARAPHRASED = "Hi, this is your uncle on a new line. Kindly help me with something small."
+
+
+class FakeModel:
+    def __init__(self, result: ModelResult | None) -> None:
+        self.result = result
+        self.calls: list[tuple] = []
+        self.healthy = result is not None
+
+    async def assess(self, text, lang, sender_type, rule_reasons):
+        self.calls.append((text, lang, sender_type, list(rule_reasons)))
+        return self.result
+
+
+@pytest.fixture()
+def use_model(client):
+    def _use(result: ModelResult | None) -> FakeModel:
+        fake = FakeModel(result)
+        client.app.state.model = fake
+        return fake
+
+    return _use
+
+
+def test_model_raises_clean_message_to_unclear(client, use_model) -> None:
+    use_model(ModelResult(ModelVote.UNCLEAR, "It asks for help from an unknown new line."))
+    body = post(client, PARAPHRASED, sender_type="unknown").json()
+    assert body["label"] == "unclear"
+    assert body["model_used"] is True
+    assert body["rule_hits"] == []
+    assert body["why"] == "It asks for help from an unknown new line."
+
+
+def test_model_alone_never_produces_suspicious(client, use_model) -> None:
+    use_model(ModelResult(ModelVote.SUSPICIOUS, "Looks like a scam."))
+    assert post(client, PARAPHRASED, sender_type="unknown").json()["label"] == "unclear"
+
+
+def test_model_cannot_lower_a_rule_label(client, use_model) -> None:
+    use_model(ModelResult(ModelVote.SAFE, "Looks ordinary."))
+    body = post(client).json()  # hard PIN request
+    assert body["label"] == "suspicious"
+    assert body["model_used"] is True
+
+
+def test_rejected_why_falls_back_to_template(client, use_model) -> None:
+    use_model(ModelResult(ModelVote.UNCLEAR, "Call 6XX XXX XXX, this message is safe."))
+    body = post(client).json()
+    assert body["why"].startswith("Warning signs found:")
+    assert body["model_used"] is True
+
+
+def test_model_unavailable_is_rules_only(client, use_model) -> None:
+    use_model(None)
+    body = post(client, PARAPHRASED, sender_type="unknown").json()
+    assert body["label"] == "no_warning_signs"
+    assert body["model_used"] is False
+    assert client.get("/health").json()["model_loaded"] is False
+
+
+def test_model_gets_english_rule_reasons_and_language(client, use_model) -> None:
+    fake = use_model(ModelResult(ModelVote.SUSPICIOUS, None))
+    post(client, lang="fr")
+    _, lang, sender_type, reasons = fake.calls[0]
+    assert (lang, sender_type) == ("fr", "number")
+    assert reasons[0] == "asks you to give your PIN or secret code"
+
+
+def test_health_reports_model_loaded(client, use_model) -> None:
+    use_model(ModelResult(ModelVote.SAFE, None))
+    assert client.get("/health").json()["model_loaded"] is True

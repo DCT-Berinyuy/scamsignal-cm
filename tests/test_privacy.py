@@ -1,6 +1,7 @@
 """Privacy canary test (PRD §11): submitted text never appears in logs or error responses."""
 
 import logging
+import os
 import socket
 import subprocess
 import sys
@@ -13,6 +14,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import app.main as main_module
+from app.config import GEMINI_API_KEY_ENV
 
 CANARY = f"CANARY-{uuid.uuid4().hex}"
 
@@ -75,6 +77,7 @@ def test_canary_not_in_real_server_logs() -> None:
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
+        env={k: v for k, v in os.environ.items() if k != GEMINI_API_KEY_ENV},  # never call the real API
     )
     try:
         base = f"http://127.0.0.1:{port}"
