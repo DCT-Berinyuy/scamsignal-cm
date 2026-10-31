@@ -12,6 +12,7 @@ venv/
 # Local env / secrets (never commit)
 .env
 .env.*
+!.env.example
 
 # Model weights / caches (downloaded at runtime, not committed)
 models/
